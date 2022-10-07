@@ -5,17 +5,17 @@ import java.util.List;
 
 public class WikiPage{
 
-	private final List<Element> content = new ArrayList<>();
+	private final List<Paragraph> content = new ArrayList<>();
 
-	public WikiPage append(Element element){
-		content.add(element);
+	public WikiPage append(Paragraph paragraph){
+		content.add(paragraph);
 		return this;
 	}
 
 	public String toMarkdown(){
 		StringBuilder builder = new StringBuilder();
-		for(Element element : content)
-			builder.append(element.content()).append("\n\n");
+		for(Paragraph paragraph : content)
+			builder.append(paragraph.content()).append("\n\n");
 		return builder.toString();
 	}
 }

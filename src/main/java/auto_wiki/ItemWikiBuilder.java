@@ -1,9 +1,6 @@
 package auto_wiki;
 
-import auto_wiki.layout.Element;
-import auto_wiki.layout.TableElement;
-import auto_wiki.layout.TextElement;
-import auto_wiki.layout.WikiPage;
+import auto_wiki.layout.*;
 import net.fabricmc.fabric.api.mininglevel.v1.FabricMineableTags;
 import net.fabricmc.fabric.api.mininglevel.v1.MiningLevelManager;
 import net.minecraft.block.Block;
@@ -47,17 +44,20 @@ public class ItemWikiBuilder{
 
 	public static WikiPage createFor(Item item){
 		WikiPage page = new WikiPage();
-		Identifier id = Registry.ITEM.getId(item);
-		page.append(new TextElement("# " + item.getName().getString()));
-		// TODO: ImageElement
-		page.append(new TextElement("<img src='../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png' alt='item texture' width='100'/>"));
+		page.append(new TextParagraph("# " + item.getName().getString()));
+		page.append(icon(item, 100));
 		page.append(infoTable(item));
 		if(item instanceof BlockItem block)
 			page.append(blockInfoTable(block));
 		return page;
 	}
 
-	private static Element infoTable(Item item){
+	public static Paragraph icon(Item item, int size){
+		Identifier id = Registry.ITEM.getId(item);
+		return new ImageParagraph("../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png", "item icon", size);
+	}
+
+	private static Paragraph infoTable(Item item){
 		List<String> headers = new ArrayList<>(List.of("Item properties", "Id", "Max stack size"));
 		List<String> values = new ArrayList<>(List.of("", formatId(item), String.valueOf(item.getMaxCount())));
 		if(item.isDamageable()){
@@ -79,10 +79,10 @@ public class ItemWikiBuilder{
 			headers.add("Tags");
 			values.add(formatTags(tags.stream().map(TagKey::id)));
 		}
-		return new TableElement(List.of(headers, values));
+		return new TableParagraph(List.of(headers, values));
 	}
 
-	private static Element blockInfoTable(BlockItem blockItem){
+	private static Paragraph blockInfoTable(BlockItem blockItem){
 		Block block = blockItem.getBlock();
 		List<String> headers = new ArrayList<>(List.of("Block properties", "Id"));
 		List<String> values = new ArrayList<>(List.of("", formatId(block)));
@@ -123,7 +123,7 @@ public class ItemWikiBuilder{
 			values.add(formatTags(tags.stream().map(TagKey::id)));
 		}
 
-		return new TableElement(List.of(headers, values));
+		return new TableParagraph(List.of(headers, values));
 	}
 
 	@NotNull

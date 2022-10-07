@@ -1,6 +1,6 @@
 package auto_wiki.layout;
 
-public interface Element{
+public interface Paragraph{
 
 	String content();
 }

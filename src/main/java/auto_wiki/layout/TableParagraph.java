@@ -2,11 +2,11 @@ package auto_wiki.layout;
 
 import java.util.List;
 
-public class TableElement implements Element{
+public class TableParagraph implements Paragraph{
 
 	private final List<List<String>> columns;
 
-	public TableElement(List<List<String>> columns){
+	public TableParagraph(List<List<String>> columns){
 		if(columns.size() > 0){
 			int rows = columns.get(0).size();
 			if(columns.stream().anyMatch(x -> x.size() != rows))
