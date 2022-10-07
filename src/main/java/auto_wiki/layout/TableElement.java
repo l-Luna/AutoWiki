@@ -13,6 +13,10 @@ public class TableElement implements Element{
 				throw new IllegalArgumentException("All columns of a TableElement must have the same number of rows");
 			if(rows <= 1)
 				throw new IllegalArgumentException("A TableElement must have at least 2 rows");
+			for(List<String> column : columns)
+				for(String s : column)
+					if(s.contains("\n"))
+						throw new IllegalArgumentException("A TableElement cell cannot have a newline; use <br>");
 		}
 		this.columns = columns;
 	}
