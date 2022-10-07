@@ -50,7 +50,7 @@ public class ItemWikiBuilder{
 		Identifier id = Registry.ITEM.getId(item);
 		page.append(new TextElement("# " + item.getName().getString()));
 		// TODO: ImageElement
-		page.append(new TextElement("![item texture](../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png)"));
+		page.append(new TextElement("<img src='../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png' alt='item texture' width='100'/>"));
 		page.append(infoTable(item));
 		if(item instanceof BlockItem block)
 			page.append(blockInfoTable(block));
