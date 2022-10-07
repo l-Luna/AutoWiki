@@ -4,6 +4,8 @@ import auto_wiki.layout.Element;
 import auto_wiki.layout.TableElement;
 import auto_wiki.layout.TextElement;
 import auto_wiki.layout.WikiPage;
+import net.fabricmc.fabric.api.mininglevel.v1.FabricMineableTags;
+import net.fabricmc.fabric.api.mininglevel.v1.MiningLevelManager;
 import net.minecraft.block.Block;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.EquipmentSlot;
@@ -12,6 +14,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -24,6 +27,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ItemWikiBuilder{
+
+	private static final Map<TagKey<Block>, String> mineableTags = Map.of(
+			BlockTags.AXE_MINEABLE, "Axe",
+			BlockTags.HOE_MINEABLE, "Hoe",
+			BlockTags.PICKAXE_MINEABLE, "Pickaxe",
+			BlockTags.SHOVEL_MINEABLE, "Shovel",
+			FabricMineableTags.SWORD_MINEABLE, "Sword",
+			FabricMineableTags.SHEARS_MINEABLE, "Shears"
+	);
+
+	private static final Map<Integer, String> miningLevelNames = Map.of(
+			0, "Hand (0)",
+			1, "Stone (1)",
+			2, "Iron (2)",
+			3, "Diamond (3)",
+			4, "Netherite (4)"
+	);
 
 	public static WikiPage createFor(Item item){
 		WikiPage page = new WikiPage();
@@ -63,6 +83,7 @@ public class ItemWikiBuilder{
 		Block block = blockItem.getBlock();
 		List<String> headers = new ArrayList<>(List.of("Block properties", "Id"));
 		List<String> values = new ArrayList<>(List.of("", formatId(block)));
+
 		if(block.getHardness() == -1){
 			headers.add("Hardness/resistance");
 			values.add("Unbreakable");
@@ -73,8 +94,28 @@ public class ItemWikiBuilder{
 			headers.add("Hardness/resistance");
 			values.add(String.valueOf(block.getHardness()));
 		}
+
+		var state = block.getDefaultState();
+		int miningLevel = MiningLevelManager.getRequiredMiningLevel(state);
+		if(miningLevel > 0 || state.isToolRequired()){
+			headers.add("Mining level");
+			values.add(miningLevelNames.getOrDefault(miningLevel, String.valueOf(miningLevel)));
+		}
+
 		var tags = block.getBuiltInRegistryHolder().streamTags().toList();
 		if(tags.size() > 0){
+			// TODO: what if a block has multiple mineable tags?
+			for(var entry : mineableTags.entrySet()){
+				if(tags.contains(entry.getKey())){
+					String text = entry.getValue();
+					if(state.isToolRequired())
+						text += " (Required)";
+					headers.add("Tool");
+					values.add(text);
+					break;
+				}
+			}
+
 			headers.add("Tags");
 			values.add(formatTags(tags.stream().map(TagKey::id)));
 		}
