@@ -4,6 +4,7 @@ import auto_wiki.render.ItemStackRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.quiltmc.loader.api.ModContainer;
@@ -20,14 +21,15 @@ public class AutoWikiMod implements ModInitializer{
 
 	public void onInitialize(ModContainer mod){
 		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, error) -> {
-			doGenerate();
+			if(server != null)
+				doGenerate(server.getRecipeManager());
 		});
 		HudRenderCallback.EVENT.register(new ItemStackRenderer());
 	}
 
-	private static void doGenerate(){
+	private static void doGenerate(RecipeManager manager){
 		for(Item item : Registry.ITEM){
-			String markdown = ItemWikiBuilder.createFor(item).toMarkdown();
+			String markdown = ItemWikiBuilder.createFor(item, manager).toMarkdown();
 			Identifier identifier = Registry.ITEM.getId(item);
 			String path = "./auto_wiki/" + identifier.getNamespace() + "/" + identifier.getPath() + ".md";
 			Path asPath = Path.of(path).normalize().toAbsolutePath();

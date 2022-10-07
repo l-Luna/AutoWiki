@@ -11,15 +11,16 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeManager;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,19 +44,28 @@ public class ItemWikiBuilder{
 			4, "Netherite (4)"
 	);
 
-	public static WikiPage createFor(Item item){
+	public static WikiPage createFor(Item item, RecipeManager manager){
 		WikiPage page = new WikiPage();
 		page.append(new TextParagraph("# " + item.getName().getString()));
 		page.append(icon(item, 100));
 		page.append(infoTable(item));
 		if(item instanceof BlockItem block)
 			page.append(blockInfoTable(block));
+		recipeUsages(item, manager).forEach(page::append);
 		return page;
 	}
 
 	public static Paragraph icon(Item item, int size){
 		Identifier id = Registry.ITEM.getId(item);
-		return new ImageParagraph("../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png", "item icon", size);
+		return new ImageParagraph("../../auto_wiki_textures/%s/%s.png".formatted(id.getNamespace(), id.getPath()), "item icon", size);
+	}
+
+	public static Paragraph crosslink(Item item){
+		Identifier id = Registry.ITEM.getId(item);
+		return new SeqParagraph(
+			icon(item, 16),
+			new LinkParagraph(item.getName().getString(), "../%s/%s.md".formatted(id.getNamespace(), id.getPath()))
+		);
 	}
 
 	private static Paragraph infoTable(Item item){
@@ -125,6 +135,28 @@ public class ItemWikiBuilder{
 		}
 
 		return new TableParagraph(List.of(headers, values));
+	}
+
+	private static List<Paragraph> recipeUsages(Item item, RecipeManager manager){
+		Set<Item> outputs = new HashSet<>();
+		recipes:
+		for(Recipe<?> value : manager.values())
+			for(Ingredient ingredient : value.getIngredients())
+				for(ItemStack stack : ingredient.getMatchingStacks())
+					if(stack.getItem() == item){
+						outputs.add(value.getOutput().getItem());
+						continue recipes;
+					}
+
+		if(outputs.size() == 0)
+			return List.of();
+
+		List<Paragraph> ret = new ArrayList<>(outputs.size() + 2);
+		ret.add(new TextParagraph("---"));
+		ret.add(new TextParagraph("## Usages"));
+		for(Item output : outputs)
+			ret.add(new SeqParagraph(new TextParagraph("- "), crosslink(output)));
+		return ret;
 	}
 
 	@NotNull
