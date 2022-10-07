@@ -31,7 +31,7 @@ public class ItemWikiBuilder{
 
 	private static Element infoTable(Item item){
 		List<String> headers = new ArrayList<>(List.of("Item properties", "Id", "Max stack size"));
-		List<String> values = new ArrayList<>(List.of("", Registry.ITEM.getId(item).toString(), String.valueOf(item.getMaxCount())));
+		List<String> values = new ArrayList<>(List.of("", formatId(item), String.valueOf(item.getMaxCount())));
 		if(item.isDamageable()){
 			headers.add("Durability");
 			values.add(String.valueOf(item.getMaxDamage()));
@@ -52,7 +52,7 @@ public class ItemWikiBuilder{
 	private static Element blockInfoTable(BlockItem blockItem){
 		Block block = blockItem.getBlock();
 		List<String> headers = new ArrayList<>(List.of("Block properties", "Id"));
-		List<String> values = new ArrayList<>(List.of("", Registry.BLOCK.getId(block).toString()));
+		List<String> values = new ArrayList<>(List.of("", formatId(block)));
 		if(block.getHardness() == -1){
 			headers.add("Hardness/resistance");
 			values.add("Unbreakable");
@@ -85,5 +85,13 @@ public class ItemWikiBuilder{
 				ItemStack.MODIFIER_FORMAT.format(-amount),
 				I18n.translate(key.getTranslationKey())
 		);
+	}
+
+	private static String formatId(Item block){
+		return "`" + Registry.ITEM.getId(block) + "`";
+	}
+
+	private static String formatId(Block block){
+		return "`" + Registry.BLOCK.getId(block) + "`";
 	}
 }
