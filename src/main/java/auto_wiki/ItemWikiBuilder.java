@@ -35,6 +35,7 @@ public class ItemWikiBuilder{
 	);
 
 	private static final Map<Integer, String> miningLevelNames = Map.of(
+			-1, "Any (-1)",
 			0, "Hand (0)",
 			1, "Stone (1)",
 			2, "Iron (2)",
