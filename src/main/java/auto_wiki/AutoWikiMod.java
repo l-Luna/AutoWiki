@@ -5,6 +5,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.quiltmc.loader.api.ModContainer;
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
+import org.quiltmc.qsl.resource.loader.api.ResourceLoaderEvents;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +15,12 @@ import java.nio.file.StandardOpenOption;
 public class AutoWikiMod implements ModInitializer{
 
 	public void onInitialize(ModContainer mod){
+		ResourceLoaderEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, error) -> {
+			doGenerate();
+		});
+	}
+
+	private static void doGenerate(){
 		for(Item item : Registry.ITEM){
 			String markdown = ItemWikiBuilder.createFor(item).toMarkdown();
 			Identifier identifier = Registry.ITEM.getId(item);
@@ -26,6 +33,5 @@ public class AutoWikiMod implements ModInitializer{
 				throw new RuntimeException(e);
 			}
 		}
-		System.exit(0);
 	}
 }

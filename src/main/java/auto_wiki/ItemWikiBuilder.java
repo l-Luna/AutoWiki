@@ -12,11 +12,16 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tag.TagKey;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ItemWikiBuilder{
 
@@ -46,6 +51,11 @@ public class ItemWikiBuilder{
 				values.add(String.join("<br>", effects));
 			}
 		}
+		var tags = item.getBuiltInRegistryHolder().streamTags().toList();
+		if(tags.size() > 0){
+			headers.add("Tags");
+			values.add(formatTags(tags.stream().map(TagKey::id)));
+		}
 		return new TableElement(List.of(headers, values));
 	}
 
@@ -63,8 +73,20 @@ public class ItemWikiBuilder{
 			headers.add("Hardness/resistance");
 			values.add(String.valueOf(block.getHardness()));
 		}
+		var tags = block.getBuiltInRegistryHolder().streamTags().toList();
+		if(tags.size() > 0){
+			headers.add("Tags");
+			values.add(formatTags(tags.stream().map(TagKey::id)));
+		}
 
 		return new TableElement(List.of(headers, values));
+	}
+
+	@NotNull
+	private static String formatTags(Stream<Identifier> tags){
+		return tags.map(Identifier::toString)
+				.map(x -> "`" + x + "`")
+				.collect(Collectors.joining("<br>"));
 	}
 
 	private static String formatModifier(EntityAttribute key, EntityAttributeModifier modifier){
