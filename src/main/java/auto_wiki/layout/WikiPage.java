@@ -15,7 +15,7 @@ public class WikiPage{
 	public String toMarkdown(){
 		StringBuilder builder = new StringBuilder();
 		for(Element element : content)
-			builder.append(element.content()).append("\n");
+			builder.append(element.content()).append("\n\n");
 		return builder.toString();
 	}
 }

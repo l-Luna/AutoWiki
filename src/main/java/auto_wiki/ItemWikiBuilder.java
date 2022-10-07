@@ -47,7 +47,10 @@ public class ItemWikiBuilder{
 
 	public static WikiPage createFor(Item item){
 		WikiPage page = new WikiPage();
+		Identifier id = Registry.ITEM.getId(item);
 		page.append(new TextElement("# " + item.getName().getString()));
+		// TODO: ImageElement
+		page.append(new TextElement("![item texture](../../auto_wiki_textures/" + id.getNamespace() + "/" + id.getPath() + ".png)"));
 		page.append(infoTable(item));
 		if(item instanceof BlockItem block)
 			page.append(blockInfoTable(block));
