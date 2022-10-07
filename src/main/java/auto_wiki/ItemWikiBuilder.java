@@ -47,11 +47,18 @@ public class ItemWikiBuilder{
 	public static WikiPage createFor(Item item, RecipeManager manager){
 		WikiPage page = new WikiPage();
 		page.append(new TextParagraph("# " + item.getName().getString()));
+
 		page.append(icon(item, 100));
 		page.append(infoTable(item));
 		if(item instanceof BlockItem block)
 			page.append(blockInfoTable(block));
+
+		var descKey = item.getTranslationKey() + ".auto_wiki_desc";
+		if(I18n.hasTranslation(descKey))
+			page.append(new TextParagraph(I18n.translate(descKey)));
+
 		recipeUsages(item, manager).forEach(page::append);
+
 		return page;
 	}
 
@@ -154,8 +161,10 @@ public class ItemWikiBuilder{
 		List<Paragraph> ret = new ArrayList<>(outputs.size() + 2);
 		ret.add(new TextParagraph("---"));
 		ret.add(new TextParagraph("## Usages"));
-		for(Item output : outputs)
-			ret.add(new SeqParagraph(new TextParagraph("- "), crosslink(output)));
+		outputs.stream()
+				.sorted(Comparator.comparing(x -> x.getName().getString()))
+				.map(output -> new SeqParagraph(new TextParagraph("- "), crosslink(output)))
+				.forEach(ret::add);
 		return ret;
 	}
 

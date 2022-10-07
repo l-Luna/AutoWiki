@@ -1,3 +1,5 @@
 {
-  "auto_wiki.modid.minecraft": "Minecraft"
+  "auto_wiki.modid.minecraft": "Minecraft",
+
+  "item.minecraft.iron_ingot.auto_wiki_desc": "Iron ingots are materials used in crafting various useful items."
 }
